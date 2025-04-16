@@ -42,7 +42,7 @@
  * or only the signal pin (for sensors 3 pins), like:
  * Ultrasonic ultrasonic(13);
  */
-Ultrasonic ultrasonic(2, 3);
+Ultrasonic ultrasonic(2, 3); // arguments are consecutively numbers of Trig(emitter) and Echo(receiver) pins
 int distance;
 
 void setup() {
