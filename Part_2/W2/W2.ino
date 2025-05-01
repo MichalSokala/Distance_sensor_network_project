@@ -106,7 +106,7 @@ String format4bit(byte value) {
 
 // The test() function takes as parameter the pin (channel) through which communication is done.
 void live_pin(byte expectedDest, uint8_t comm_pin, uint8_t &outID) {
-  Serial.print("W1: Sending packet to pin ");
+  Serial.print("W2: Sending packet to pin ");
   Serial.println(comm_pin);
   // Send a packet with our own ID (W1_ID)
   sendPacketOn(comm_pin, expectedDest);
@@ -117,11 +117,11 @@ void live_pin(byte expectedDest, uint8_t comm_pin, uint8_t &outID) {
   uint8_t receivedID;
   bool gotPkt = readPacketOn(comm_pin, receivedID, 1000);  // wait 1000 ms
   if (gotPkt) {
-    Serial.print("W1: Received packet with sender ID: ");
+    Serial.print("W2: Received packet with sender ID: ");
     Serial.println(format4bit(receivedID));
     outID = receivedID;
   } else {
-    Serial.println("W1: No response received.");
+    Serial.println("W2: No response received.");
     outID = 0x0000;
   }
   
@@ -179,11 +179,11 @@ void setup() {
 
 void loop() {
   byte sensor_pin_D2;   
-  live_pin(W1_ID, COMM_PIN_D2, sensor_pin_D2);
+  live_pin(W2_ID, COMM_PIN_D2, sensor_pin_D2);
   Serial.println(format4bit(sensor_pin_D2));
   byte sensor_pin_D3;   
-  live_pin(W1_ID, COMM_PIN_D3, sensor_pin_D3);
+  live_pin(W2_ID, COMM_PIN_D3, sensor_pin_D3);
   Serial.println(format4bit(sensor_pin_D3));
 
-  processAndReply(W1_ID, sensor_pin_D2, sensor_pin_D3);
+  processAndReply(W2_ID, sensor_pin_D2, sensor_pin_D3);
 }

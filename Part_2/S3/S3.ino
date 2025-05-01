@@ -94,22 +94,22 @@ void setup() {
   pinMode(COMM_PIN, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
   delay(1000);
-  Serial.println("S2 starting...");
+  Serial.println("S3 starting...");
 }
 
 void loop() {
   uint8_t receivedID;
   if (readPacket(receivedID, 500)) {  // Wait up to 500 ms
-    Serial.print("S2: Received packet with sender ID: ");
+    Serial.print("S3: Received packet with sender ID: ");
     Serial.println(format4bit(receivedID));
     
     if (receivedID) {
-      // Sending a response, which consists of S2's ID
+      // Sending a response, which consists of S3's ID
       pinMode(COMM_PIN, OUTPUT);
-      sendPacket(S2_ID);
+      sendPacket(S3_ID);
       pinMode(COMM_PIN, INPUT_PULLUP);
       blinkLED(1);
-      Serial.println("S2: Response sent."); 
+      Serial.println("S3: Response sent."); 
     }
   }
 }
