@@ -32,6 +32,15 @@ void blinkLED(int count) {
   }
 }
 
+void blinkLEDERR(int count) { //blinkLEC function used to show that an error has occured
+  for (int i = 0; i < count; i++) {
+    digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
+    delay(100);                      // Wait 200 ms
+    digitalWrite(LED_BUILTIN, LOW);  // Turn off the LED
+    delay(100);                      // Wait 200 ms before the next blink
+  }
+}
+
 
 // [Start Marker] [Source (4 bits) | Destination (4 bits)] [Data (16 bits)] [End Marker]
 void buildPacket(byte packet[FRAME_SIZE], byte src, byte dest, uint16_t data16) {
@@ -83,6 +92,7 @@ void sendRequest(byte src, byte dest, uint16_t requestData, const char* msgSent,
       Serial.print("Response from S1: ");
       Serial.println(receivedData);
       data_S1 = receivedData;
+      BlinkLED(1);
     }
     else if (respSrc == W1_ID) {
       strcpy(info_W1, "W1");
@@ -92,10 +102,11 @@ void sendRequest(byte src, byte dest, uint16_t requestData, const char* msgSent,
       nibbleToCStr(highByte, info_W1_port_D2);
       nibbleToCStr(lowByte,  info_W1_port_D3);
 
-      Serial.print("W1 response, high nibble: ");
+      Serial.print("W1 response, first 4 bits: ");
       Serial.println(info_W1_port_D2);
-      Serial.print("W1 response, low  nibble: ");
+      Serial.print("W1 response, last 4 bits: ");
       Serial.println(info_W1_port_D3);
+      BlinkLED(2);
     }
     else if (respSrc == W2_ID) {
       strcpy(info_W2, "W2");
@@ -105,10 +116,11 @@ void sendRequest(byte src, byte dest, uint16_t requestData, const char* msgSent,
       nibbleToCStr(highByte_W2, info_W2_port_D2);
       nibbleToCStr(lowByte_W2,  info_W2_port_D3);
 
-      Serial.print("W2 response, high nibble: ");
+      Serial.print("W2 response, first 4 bits: ");
       Serial.println(info_W2_port_D2);
-      Serial.print("W2 response, low  nibble: ");
+      Serial.print("W2 response, last 4 bits: ");
       Serial.println(info_W2_port_D3);
+      BlinkLED(3);
     }
   }
   else {
@@ -116,18 +128,21 @@ void sendRequest(byte src, byte dest, uint16_t requestData, const char* msgSent,
       Serial.println("S0: No reply from S1");
       data_S1 = 0;
       strcpy(info_S1, "XX");
+      BlinkLEDERR(1);
     }
     else if (dest == W1_ID) {
       Serial.println("S0: No reply from W1");
       strcpy(info_W1_port_D2, "0000");
       strcpy(info_W1_port_D3, "0000");
       strcpy(info_W1, "XX");
+      BlinkLEDERR(2);
     }
     else if (dest == W2_ID) {
       Serial.println("S0: No reply from W2");
       strcpy(info_W2_port_D2, "0000");
       strcpy(info_W2_port_D3, "0000");
       strcpy(info_W2, "XX");
+      BlinkLEDERR(3);
     }
   }
   

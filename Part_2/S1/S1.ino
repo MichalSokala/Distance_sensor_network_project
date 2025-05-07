@@ -52,6 +52,7 @@ void processAndReply(byte myID, uint16_t replyData16) {
         byte resp[FRAME_SIZE];
         buildPacket(resp, myID, src, replyData16);
         Serial1.write(resp, FRAME_SIZE);
+        BlinkLED(1);
       }
     }
   }
