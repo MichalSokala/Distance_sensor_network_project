@@ -23,7 +23,7 @@ char     info_W1[16];
 char     info_W2[16];
 
 // The blinkLED function takes a parameter "count" – the number of LED blinks.
-void blinkLED(int count) {
+void BlinkLED(int count) {
   for (int i = 0; i < count; i++) {
     digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
     delay(200);                      // Wait 200 ms
@@ -32,7 +32,7 @@ void blinkLED(int count) {
   }
 }
 
-void blinkLEDERR(int count) { //blinkLED function used to show that an error has occured
+void BlinkLEDERR(int count) { //blinkLED function used to show that an error has occured
   for (int i = 0; i < count; i++) {
     digitalWrite(LED_BUILTIN, HIGH);
     delay(100);

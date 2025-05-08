@@ -13,7 +13,7 @@
 #define W1_ID          0b1001
 #define W2_ID          0b1010
  // The blinkLED function takes a parameter "count" – the number of LED blinks.
- void blinkLED(int count) {
+ void BlinkLED(int count) {
   for (int i = 0; i < count; i++) {
     digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
     delay(200);                      // Wait 200 ms
