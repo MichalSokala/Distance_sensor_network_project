@@ -32,12 +32,12 @@ void blinkLED(int count) {
   }
 }
 
-void blinkLEDERR(int count) { //blinkLEC function used to show that an error has occured
+void blinkLEDERR(int count) { //blinkLED function used to show that an error has occured
   for (int i = 0; i < count; i++) {
-    digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
-    delay(100);                      // Wait 200 ms
-    digitalWrite(LED_BUILTIN, LOW);  // Turn off the LED
-    delay(100);                      // Wait 200 ms before the next blink
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(100);
   }
 }
 
@@ -51,7 +51,7 @@ void buildPacket(byte packet[FRAME_SIZE], byte src, byte dest, uint16_t data16) 
   packet[4] = END_MARKER;
 }
 
-void nibbleToCStr(byte value, char outBuf[5]) {
+void nibbleToCStr(byte value, char outBuf[5]) {// takes last 4 bits of every byte of data and transforms it into a string
   byte nib = value & 0x0F;
   for (int i = 0; i < 4; ++i) {
     outBuf[i] = '0' + ((nib >> (3 - i)) & 1);
