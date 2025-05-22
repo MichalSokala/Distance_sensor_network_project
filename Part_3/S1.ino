@@ -10,6 +10,13 @@
 #define NRESET_PIN 9  // Pin Reset modułu LoRa
 #define DIO0_PIN 2    // Pin DIO0 (używany do przerwania RxDone)
 
+void BlinkLED() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(5000);
+  digitalWrite(LED_BUILTIN, LOW);
+}
+
+
 void setup() {
   // Inicjalizacja komunikacji szeregowej z komputerem (przez USB)
   Serial.begin(9600);
@@ -62,7 +69,7 @@ void loop() {
   if (packetSize) {
     // Odebrano pakiet
     Serial.print("Odebrano pakiet '");
-
+    BlinkLED();
     // Odczytaj pakiet
     String receivedText = "";
     while (LoRa.available()) {

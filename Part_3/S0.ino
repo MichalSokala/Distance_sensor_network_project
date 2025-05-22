@@ -13,13 +13,17 @@
 // Licznik wysłanych pakietów
 int counter = 0;
 
+void BlinkLED() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(2000);
+  digitalWrite(LED_BUILTIN, LOW);
+}
+
 void setup() {
   // Inicjalizacja komunikacji szeregowej z komputerem (przez USB)
   Serial.begin(9600);
   while (!Serial); // Czekaj na otwarcie portu szeregowego (szczególnie dla Arduino Leonardo, Micro, itp.)
-
   Serial.println("Start programu - Nadajnik LoRa");
-
   // Ustawienie pinów dla modułu LoRa
   LoRa.setPins(NSS_PIN, NRESET_PIN, DIO0_PIN);
 
@@ -43,6 +47,7 @@ void setup() {
 
 void loop() {
   Serial.print("Wysyłanie pakietu: ");
+  BlinkLED();
   Serial.println(counter);
 
   // Rozpocznij tworzenie pakietu LoRa
