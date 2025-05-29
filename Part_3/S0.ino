@@ -1,14 +1,14 @@
 #include <SPI.h>
 #include <LoRa.h>
 
-
+int mess;
 
 void LedOn() {
-        digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
+  digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
 }
 
 void LedOff() {
-        digitalWrite(LED_BUILTIN, LOW);  // Turn off the LED
+  digitalWrite(LED_BUILTIN, LOW);  // Turn off the LED
 }
 
 
@@ -33,7 +33,7 @@ void loop() {
   if (packetSize) {
     // received a packet
     Serial.print("Received packet '");
- 
+
 
     // read packet
     while (LoRa.available()) {
@@ -41,7 +41,7 @@ void loop() {
     }
 
     // print RSSI of packet
-     Serial.print("' with RSSI ");
-     Serial.println(LoRa.packetRssi());
+    Serial.print("' with RSSI ");
+    Serial.println(LoRa.packetRssi());
   }
 }

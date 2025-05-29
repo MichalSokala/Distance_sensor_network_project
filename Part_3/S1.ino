@@ -39,7 +39,8 @@ void loop() {
 
   // send packet
   LoRa.beginPacket();
-  LoRa.print("The distance is " + String(distance));
+  //LoRa.print("The distance is " + String(distance));
+  LoRa.print(distance);
   LoRa.endPacket();
 
   counter++;

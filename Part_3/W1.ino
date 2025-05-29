@@ -13,6 +13,8 @@ void LedOff() {
         digitalWrite(LED_BUILTIN, LOW);  // Turn off the LED
 }
 
+int mess;
+
 
 void BlinkLED(int count) {
     for (int i = 0; i < count; i++) {
@@ -40,10 +42,10 @@ void setup() {
 }
 
 void loop() {
-    String mess = LoRa.receive();
+    mess = LoRa.read();
     Serial.print("Received packet: ");
     Serial.println(mess);
-    if (mess){
+    if (mess > 0){
       String Fullmess = "The message repeated by " + String(W1_ID) + " is: " + mess;
       LoRa.beginPacket();
       LoRa.print(Fullmess);
