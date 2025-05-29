@@ -13,7 +13,7 @@ void LedOff() {
         digitalWrite(LED_BUILTIN, LOW);  // Turn off the LED
 }
 
-int mess;
+char mess;
 
 
 void BlinkLED(int count) {
@@ -41,20 +41,32 @@ void setup() {
     LoRa.setTxPower(14);
 }
 
+
+
+
 void loop() {
-    mess = LoRa.read();
-    Serial.print("Received packet: ");
-    Serial.println(mess);
-    if (mess > 0){
-      String Fullmess = "The message repeated by " + String(W1_ID) + " is: " + mess;
-      LoRa.beginPacket();
-      LoRa.print(Fullmess);
-      LoRa.endPacket();
+  // try to parse packet
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    // received a packet
+    Serial.print("Received packet '");
+
+
+    // read packet
+    while (LoRa.available()) {
+      mess = (char)LoRa.read();
+      Serial.print((char)LoRa.read());
     }
 
-    // send packet
+    // print RSSI of packet
+    Serial.print("' with RSSI ");
+    Serial.println(LoRa.packetRssi());
+
     LoRa.beginPacket();
+    LoRa.print("siema");
+    LoRa.print(mess);
     LoRa.endPacket();
 
     delay(5000);
+  }
 }
