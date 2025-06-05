@@ -5,9 +5,35 @@ uint8_t lastRands[10];
 uint8_t randCount = 0;
 uint8_t randIndex = 0;
 
-// Czas ostatniego pomyślnego odbioru pakietu (w ms od uruchomienia)
 unsigned long lastReceiveTime = 0;
 
+
+uint8_t number = 1; // 2 3 4 5 6
+uint8_t W      = 0b0001; // 0b0010 0b0011 0b0100 0b0101 0b0110 
+
+
+// Funkcja wysyłająca wiadomość „ZYJE” jako heartbeat
+void sendAlive() {
+  uint8_t  myIDpaket = generateRandomByte();
+  uint8_t  mySrc     = W;
+  uint8_t  myDest    = 0b0000;
+
+  uint8_t  myIDW1    = 0b0000;
+  uint8_t  myIDW2    = 0b0000;
+  uint8_t  myIDW3    = 0b0000;
+  uint8_t  myIDW4    = 0b0000;
+  uint8_t  myIDW5    = 0b0000;
+  uint8_t  myIDW6    = 0b0000;
+
+  uint16_t myData    = 0b0000000000000000;
+
+
+  sendMessage(myIDpaket, mySrc, myDest,
+              myIDW1, myIDW2, myIDW3,
+              myIDW4, myIDW5, myIDW6,
+              myData);
+
+}
 
 void BlinkLED(int count) {
   for (int i = 0; i < count; i++) {
@@ -17,27 +43,55 @@ void BlinkLED(int count) {
     delay(300);                      // Wait 300 ms before the next blink
   }
 }
-// Funkcja inicjalizująca LoRa
+
 void initLoRa() {
   Serial.begin(9600);
-  while (!Serial);
+
   if (!LoRa.begin(868E6)) {
-    Serial.println("LoRa init failed!");
+    // Serial.println("LoRa init failed!");
     while (1);
   }
-  Serial.println("=== LoRa ready ===");
+  // Serial.println("=== LoRa ready ===");
 }
 
-// Sprawdza, czy Rand (ID pakietu) już wystąpił w ostatnich 10-ciu
+uint8_t generateRandomByte() {
+  return (uint8_t)random(0, 256);
+}
+
+void sendMessage(uint8_t IDpaket,
+                 uint8_t src,
+                 uint8_t dest,
+                 uint8_t IDW1,
+                 uint8_t IDW2,
+                 uint8_t IDW3,
+                 uint8_t IDW4,
+                 uint8_t IDW5,
+                 uint8_t IDW6,
+                 uint16_t Data){
+  uint8_t packet[7];
+  packet[0] = IDpaket;                             // 8 bit
+  packet[1] = (src << 4)   | (dest & 0x0F);        // 4 bit src | 4 bit dest
+  packet[2] = (IDW1 << 4)  | (IDW2 & 0x0F);        // 4 bit IDW1 | 4 bit IDW2
+  packet[3] = (IDW3 << 4)  | (IDW4 & 0x0F);        // 4 bit IDW3 | 4 bit IDW4
+  packet[4] = (IDW5 << 4)  | (IDW6 & 0x0F);        // 4 bit IDW5 | 4 bit IDW6
+  packet[5] = (Data >> 8)  & 0xFF;                 // Data (16 bit)
+  packet[6] =  Data        & 0xFF;                 // Data (16 bit)
+
+  LoRa.beginPacket();
+    LoRa.write(packet, sizeof(packet));
+  LoRa.endPacket();
+  BlinkLED(2);
+}
+
 bool processRand(uint8_t Rand) {
-  Serial.print("Last Rands: ");
+  // Serial.print("Last Rands: ");
   for (uint8_t i = 0; i < randCount; i++) {
-    Serial.print("0b");
-    Serial.print(lastRands[i], BIN);
-    Serial.print(" ");
+    // Serial.print("0b");
+    // Serial.print(lastRands[i], BIN);
+    // Serial.print(" ");
   }
-  if (randCount == 0) Serial.print("<empty>");
-  Serial.println();
+  // if (randCount == 0) Serial.print("<empty>");
+  // Serial.println();
 
   bool duplicate = false;
   for (uint8_t i = 0; i < randCount; i++) {
@@ -47,11 +101,11 @@ bool processRand(uint8_t Rand) {
     }
   }
   if (duplicate) {
-    Serial.print("⚠️ Duplicate Rand detected: 0b");
-    Serial.println(Rand, BIN);
+    // Serial.print("⚠️ Duplicate Rand detected: 0b");
+    // Serial.println(Rand, BIN);
   } else {
-    Serial.print("✅ No duplicate for Rand: 0b");
-    Serial.println(Rand, BIN);
+    // Serial.print("✅ No duplicate for Rand: 0b");
+    // Serial.println(Rand, BIN);
   }
 
   lastRands[randIndex] = Rand;
@@ -61,7 +115,7 @@ bool processRand(uint8_t Rand) {
   return duplicate;
 }
 
-// Modyfikuje pole o indeksie fieldIndex w pakiecie i odsyła
+
 void modifyAndResend(uint8_t packet[7], uint8_t fieldIndex, uint8_t newValue) {
   if (fieldIndex < 1 || fieldIndex > 6) return;
   newValue &= 0x0F;
@@ -74,48 +128,34 @@ void modifyAndResend(uint8_t packet[7], uint8_t fieldIndex, uint8_t newValue) {
   } else {
     packet[byteIdx] = (packet[byteIdx] & 0xF0) | newValue;
   }
-  BlinkLED(3);
+
   LoRa.beginPacket();
     LoRa.write(packet, 7);
   LoRa.endPacket();
 }
 
-// Funkcja wysyłająca wiadomość „ZYJE” jako heartbeat
-void sendAlive() {
-  //Serial.println(" W1 is alive");
-  LoRa.beginPacket();
-    // Możesz tu dowolnie zmienić treść. Używamy metody print, więc ciąg znaków.
-    LoRa.print("W1 is alive");
-  LoRa.endPacket();
-}
-
-// Odbiór pakietu o długości 7 bajtów, dekodowanie i ewentualne odesłanie
 void receiveMessage() {
   int packetSize = LoRa.parsePacket();
   if (packetSize <= 0) return;
 
   if (packetSize != 7) {
-    // Jeśli długość nie jest równa 7, wyrzucamy bajty i wychodzimy
     while (LoRa.available()) {
       LoRa.read();
     }
     return;
   }
 
-  // Mamy dokładnie 7 bajtów
   uint8_t packet[7];
   LoRa.readBytes(packet, 7);
 
-  // Debug: wypisz bajty w formacie [XX]
   for (uint8_t i = 0; i < 7; i++) {
-    Serial.print("[");
-    if (packet[i] < 0x10) Serial.print('0');
-    Serial.print(packet[i], HEX);
-    Serial.print("]");
+    // Serial.print("[");
+    // if (packet[i] < 0x10) Serial.print('0');
+    // Serial.print(packet[i], HEX);
+    // Serial.print("]");
   }
-  Serial.println();
+  // Serial.println();
 
-  // Dekodowanie pól
   uint8_t IDpaket = packet[0];
   uint8_t src   = (packet[1] >> 4) & 0x0F;
   uint8_t dest  = packet[1] & 0x0F;
@@ -131,28 +171,24 @@ void receiveMessage() {
 
   uint16_t Data = ((uint16_t)packet[5] << 8) | packet[6];
 
-  // Odnotowujemy, że coś przyszło – resetujemy timer
-  lastReceiveTime = millis();
-
   bool duplicate = processRand(IDpaket);
 
   if (!duplicate) {
-    // Jeśli nie duplikat, modyfikujemy pole W1 i odsyłamy
-    modifyAndResend(packet, 1, 0b0001);
-    Serial.println("Resent modified packet (W1 set to 0b0001).");
+    modifyAndResend(packet, number, W);
+    // Serial.println("Resent modified packet.");
   }
 }
 
 void setup() {
   initLoRa();
   randomSeed(analogRead(A0));
+  pinMode(LED_BUILTIN, OUTPUT);
   // Na starcie ustawiamy lastReceiveTime na teraz,
   // żeby po włączeniu nie wysyłać od razu ŻYJĘ
   lastReceiveTime = millis();
 }
 
 void loop() {
-  // Najpierw sprawdzamy, czy przyszła jakaś wiadomość
   receiveMessage();
 
   // Sprawdzamy, czy minęło ponad 15 sekund od ostatniego odbioru
@@ -162,6 +198,4 @@ void loop() {
     lastReceiveTime = millis();
   }
 
-  // Krótka pauza, żeby nie zatykać CPU
-  delay(10);
 }

@@ -1,5 +1,9 @@
 #include <SPI.h>
 #include <LoRa.h>
+#include <Ultrasonic.h>
+
+Ultrasonic ultrasonic(2, 3);
+int distance;
 
 void initLoRa() {
   Serial.begin(9600);
@@ -58,12 +62,16 @@ void loop() {
   uint8_t  myIDW5    = 0b0000;
   uint8_t  myIDW6    = 0b0000;
 
-  uint16_t myData    = 0b0000111100001111;
+  distance = ultrasonic.read();
+  
+  // uint16_t myData    = 0b0000111100001111;
+  uint16_t myData    = (uint16_t)distance;
 
   sendMessage(myIDpaket, mySrc, myDest,
               myIDW1, myIDW2, myIDW3,
               myIDW4, myIDW5, myIDW6,
               myData);
   Serial.println("Send");
+  Serial.println(distance);
   delay(2000);
 }
