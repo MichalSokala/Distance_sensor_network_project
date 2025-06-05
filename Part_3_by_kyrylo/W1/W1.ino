@@ -8,6 +8,15 @@ uint8_t randIndex = 0;
 // Czas ostatniego pomyślnego odbioru pakietu (w ms od uruchomienia)
 unsigned long lastReceiveTime = 0;
 
+
+void BlinkLED(int count) {
+  for (int i = 0; i < count; i++) {
+    digitalWrite(LED_BUILTIN, HIGH); // Turn on the LED
+    delay(300);                      // Wait 300 ms
+    digitalWrite(LED_BUILTIN, LOW);  // Turn off the LED
+    delay(300);                      // Wait 300 ms before the next blink
+  }
+}
 // Funkcja inicjalizująca LoRa
 void initLoRa() {
   Serial.begin(9600);
@@ -65,7 +74,7 @@ void modifyAndResend(uint8_t packet[7], uint8_t fieldIndex, uint8_t newValue) {
   } else {
     packet[byteIdx] = (packet[byteIdx] & 0xF0) | newValue;
   }
-
+  BlinkLED(3);
   LoRa.beginPacket();
     LoRa.write(packet, 7);
   LoRa.endPacket();
