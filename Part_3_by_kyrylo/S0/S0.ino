@@ -62,6 +62,53 @@ void printFrameBinary(uint8_t IDpaket,
   Serial.println("\n");
 }
 
+// Funkcja, która wypisuje ścieżkę, np.:
+// Path: src -> IDW1 -> IDW2 -> ... -> dest
+void printPath(uint8_t src,
+               uint8_t IDW1,
+               uint8_t IDW2,
+               uint8_t IDW3,
+               uint8_t IDW4,
+               uint8_t IDW5,
+               uint8_t IDW6,
+               uint8_t dest)
+{
+  Serial.print("Path: ");
+  // drukujemy źródło w postaci dziesiętnej
+  Serial.print(src, DEC);
+
+  // kolejne „hop’y” – pomijamy te, które są równe 0
+  if (IDW1 != 0) {
+    Serial.print(" -> ");
+    Serial.print(IDW1, DEC);
+  }
+  if (IDW2 != 0) {
+    Serial.print(" -> ");
+    Serial.print(IDW2, DEC);
+  }
+  if (IDW3 != 0) {
+    Serial.print(" -> ");
+    Serial.print(IDW3, DEC);
+  }
+  if (IDW4 != 0) {
+    Serial.print(" -> ");
+    Serial.print(IDW4, DEC);
+  }
+  if (IDW5 != 0) {
+    Serial.print(" -> ");
+    Serial.print(IDW5, DEC);
+  }
+  if (IDW6 != 0) {
+    Serial.print(" -> ");
+    Serial.print(IDW6, DEC);
+  }
+
+  // na końcu zawsze dest
+  Serial.print(" -> ");
+  Serial.print(dest, DEC);
+  Serial.println();
+}
+
 void receiveMessage() {
   int packetSize = LoRa.parsePacket();
   if (packetSize <= 0) return;
@@ -77,7 +124,6 @@ void receiveMessage() {
   LoRa.readBytes(packet, 7);
 
   uint8_t IDpaket = packet[0];
-
   uint8_t src   = (packet[1] >> 4) & 0x0F;
   uint8_t dest  = packet[1] & 0x0F;
 
@@ -92,11 +138,16 @@ void receiveMessage() {
 
   uint16_t Data = ((uint16_t)packet[5] << 8) | packet[6];
 
+  // Pomijamy ramkę, jeśli wszystkie IDW1..IDW6 == 0
   if (IDW1 == 0 && IDW2 == 0 && IDW3 == 0 &&
       IDW4 == 0 && IDW5 == 0 && IDW6 == 0) {
     return;
   }
 
+  // Najpierw wypisujemy ścieżkę, czyli kolejność węzłów
+  printPath(src, IDW1, IDW2, IDW3, IDW4, IDW5, IDW6, dest);
+
+  // Potem wypisujemy szczegóły ramki w postaci binarnej
   printFrameBinary(IDpaket, src, dest,
                    IDW1, IDW2, IDW3,
                    IDW4, IDW5, IDW6,
